@@ -300,162 +300,168 @@ const region = [
 bot.on('message', async event => {
   try {
     if (event.message.type === 'location') {
-      const result = data.filter(d => {
-        return d.Name !== '' && d.Add !== ''
-      })
-      const reply = {
-        type: 'flex',
-        altText: '附近景點推薦',
-        contents: {
-          type: 'carousel',
-          contents: []
-        }
-      }
-      const newdata = []
-      const dataidx = []
-      let number = 0
-      for (const d of result) {
-        const distan = distance(event.message.latitude, event.message.longitude, d.Py, d.Px, 'K')
-        if (distan <= 5) {
-          newdata.push(d)
-        }
-      }
-      for (let i = 0; i < 5; i++) {
-        let rand = Math.round(Math.random() * (newdata.length - 1))
-        if (dataidx.includes(rand)) {
-          i--
-        } else {
-          dataidx.push(rand)
-        }
-      }
-      for (const n of newdata) {
-        for (let i of dataidx) {
-          const distan = distance(event.message.latitude, event.message.longitude, n.Py, n.Px, 'K')
-          if (number === i) {
-            reply.contents.contents.push({
-              type: 'bubble',
-              size: 'micro',
-              body: {
-                type: 'box',
-                layout: 'vertical',
-                contents: [
-                  {
-                    type: 'box',
-                    layout: 'vertical',
-                    contents: [
-                      {
-                        type: 'text',
-                        text: `${n.Name}`,
-                        size: 'md',
-                        adjustMode: 'shrink-to-fit',
-                        weight: 'bold',
-                        wrap: true
-                      }
-                    ],
-                    paddingBottom: '2px'
-                  },
-                  {
-                    type: 'box',
-                    layout: 'vertical',
-                    contents: [
-                      {
-                        type: 'box',
-                        layout: 'horizontal',
-                        contents: [
-                          {
-                            type: 'box',
-                            layout: 'vertical',
-                            contents: [
-                              {
-                                type: 'text',
-                                text: '距離目前位置',
-                                size: 'xxs'
-                              }
-                            ],
-                            width: '95px'
-                          },
-                          {
-                            type: 'box',
-                            layout: 'vertical',
-                            contents: [
-                              {
-                                type: 'text',
-                                text: `${distan.toFixed(2)}K`,
-                                size: 'xs',
-                                wrap: true
-                              }
-                            ],
-                            alignItems: 'flex-end',
-                            width: '45px'
-                          }
-                        ],
-                        alignItems: 'center',
-                        justifyContent: 'space-between'
-                      }
-                    ]
-                  },
-                  {
-                    type: 'separator',
-                    margin: '5px'
-                  },
-                  {
-                    type: 'box',
-                    layout: 'vertical',
-                    contents: [
-                      {
-                        type: 'text',
-                        text: `${n.Add}`,
-                        size: 'xs',
-                        wrap: true
-                      }
-                    ],
-                    paddingTop: '5px'
-                  }
-                ]
-              },
-              footer: {
-                type: 'box',
-                layout: 'vertical',
-                contents: [
-                  {
-                    type: 'box',
-                    layout: 'vertical',
-                    contents: [
-                      {
-                        type: 'text',
-                        text: '地點介紹',
-                        align: 'center',
-                        size: 'xs',
-                        color: '#ffffff',
-                        weight: 'bold'
-                      }
-                    ],
-                    backgroundColor: '#CC9966',
-                    cornerRadius: '5px',
-                    alignItems: 'center',
-                    height: '25px',
-                    justifyContent: 'center',
-                    width: '80px',
-                    action: {
-                      type: 'postback',
-                      label: `${n.Name}地點介紹`,
-                      data: `${n.Name}地點介紹`
-                    }
-                  }
-                ],
-                alignItems: 'center'
-              }
-            })
+      try {
+        const result = data.filter(d => {
+          return d.Name !== '' && d.Add !== ''
+        })
+        const reply = {
+          type: 'flex',
+          altText: '附近景點推薦',
+          contents: {
+            type: 'carousel',
+            contents: []
           }
         }
-        number++
-      }
-      if (newdata.length === 0) {
-        event.reply('兄弟 你附近是荒野嗎\n我找地圖找了好久沒有景點呀！')
-      } else if (newdata.length === 5) {
-        event.reply(['哇 你很幸運！\n方圓5公里內剛好就這5個點\n快跟著我一起沖鴨～～～', reply])
-      } else {
-        event.reply(['5公里內的景點太多了\n就推薦你幾個自己看吧\n\n不喜歡的話就再傳一次位置\n我破例再幫你找一次！', reply])
+        const newdata = []
+        const dataidx = []
+        let number = 0
+        for (const d of result) {
+          const distan = distance(event.message.latitude, event.message.longitude, d.Py, d.Px, 'K')
+          if (distan <= 5) {
+            newdata.push(d)
+          }
+        }
+        for (let i = 0; i < 5; i++) {
+          if (newdata.length !== 0) {
+            let rand = Math.round(Math.random() * (newdata.length - 1))
+            if (dataidx.includes(rand)) {
+              i--
+            } else {
+              dataidx.push(rand)
+            }
+          }
+        }
+        for (const n of newdata) {
+          for (let i of dataidx) {
+            const distan = distance(event.message.latitude, event.message.longitude, n.Py, n.Px, 'K')
+            if (number === i) {
+              reply.contents.contents.push({
+                type: 'bubble',
+                size: 'micro',
+                body: {
+                  type: 'box',
+                  layout: 'vertical',
+                  contents: [
+                    {
+                      type: 'box',
+                      layout: 'vertical',
+                      contents: [
+                        {
+                          type: 'text',
+                          text: `${n.Name}`,
+                          size: 'md',
+                          adjustMode: 'shrink-to-fit',
+                          weight: 'bold',
+                          wrap: true
+                        }
+                      ],
+                      paddingBottom: '2px'
+                    },
+                    {
+                      type: 'box',
+                      layout: 'vertical',
+                      contents: [
+                        {
+                          type: 'box',
+                          layout: 'horizontal',
+                          contents: [
+                            {
+                              type: 'box',
+                              layout: 'vertical',
+                              contents: [
+                                {
+                                  type: 'text',
+                                  text: '距離目前位置',
+                                  size: 'xxs'
+                                }
+                              ],
+                              width: '95px'
+                            },
+                            {
+                              type: 'box',
+                              layout: 'vertical',
+                              contents: [
+                                {
+                                  type: 'text',
+                                  text: `${distan.toFixed(2)}K`,
+                                  size: 'xs',
+                                  wrap: true
+                                }
+                              ],
+                              alignItems: 'flex-end',
+                              width: '45px'
+                            }
+                          ],
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }
+                      ]
+                    },
+                    {
+                      type: 'separator',
+                      margin: '5px'
+                    },
+                    {
+                      type: 'box',
+                      layout: 'vertical',
+                      contents: [
+                        {
+                          type: 'text',
+                          text: `${n.Add}`,
+                          size: 'xs',
+                          wrap: true
+                        }
+                      ],
+                      paddingTop: '5px'
+                    }
+                  ]
+                },
+                footer: {
+                  type: 'box',
+                  layout: 'vertical',
+                  contents: [
+                    {
+                      type: 'box',
+                      layout: 'vertical',
+                      contents: [
+                        {
+                          type: 'text',
+                          text: '地點介紹',
+                          align: 'center',
+                          size: 'xs',
+                          color: '#ffffff',
+                          weight: 'bold'
+                        }
+                      ],
+                      backgroundColor: '#CC9966',
+                      cornerRadius: '5px',
+                      alignItems: 'center',
+                      height: '25px',
+                      justifyContent: 'center',
+                      width: '80px',
+                      action: {
+                        type: 'postback',
+                        label: `${n.Name}地點介紹`,
+                        data: `${n.Name}地點介紹`
+                      }
+                    }
+                  ],
+                  alignItems: 'center'
+                }
+              })
+            }
+          }
+          number++
+        }
+        if (newdata.length === 0) {
+          event.reply('兄弟 你附近是荒野嗎\n我找地圖找了好久沒有景點呀！')
+        } else if (newdata.length === 5) {
+          event.reply(['哇 你很幸運！\n方圓5公里內剛好就這5個點\n快跟著我一起沖鴨～～～', reply])
+        } else {
+          event.reply(['5公里內的景點太多了\n就推薦你幾個自己看吧\n\n不喜歡這些的話就再跟我說一次位置\n破例再幫你找一次！', reply])
+        }
+      } catch (error) {
+        event.reply('不要傳奇怪的地方鴨！我會錯亂！')
       }
     }
     if (event.message.type === 'text') {
@@ -721,6 +727,580 @@ bot.on('message', async event => {
         let rand = Math.round(Math.random() * (joke.length - 1))
 
         event.reply(joke[rand])
+      } else if (
+        event.message.text === '北部地區' ||
+        event.message.text === '中部地區' ||
+        event.message.text === '南部地區' ||
+        event.message.text === '東部地區'
+      ) {
+        let result = region.filter(data => {
+          return data.area === event.message.text
+        })
+        let num = 1
+        const color = result[0].color
+        const area = result[0].area
+        let city = result[0].district
+
+        const reply = {
+          type: 'flex',
+          altText: `${area}`,
+          contents: {
+            type: 'bubble',
+            body: {
+              type: 'box',
+              layout: 'vertical',
+              spacing: 'md',
+              contents: [
+                {
+                  type: 'text',
+                  text: `${area}`,
+                  size: 'md',
+                  weight: 'bold',
+                  align: 'center'
+                },
+                {
+                  type: 'text',
+                  text: '點擊縣市選項開啟功能搜尋',
+                  size: 'xs',
+                  color: '#999999',
+                  align: 'center',
+                  margin: 'sm'
+                },
+                {
+                  type: 'separator'
+                }
+              ]
+            }
+          }
+        }
+        for (let i = 0; i < city.length / 2; i++) {
+          if (city.length % 2 === 0) {
+            const district = {
+              type: 'box',
+              layout: 'horizontal',
+              spacing: 'sm',
+              contents: [
+                {
+                  type: 'box',
+                  layout: 'vertical',
+                  contents: [
+                    {
+                      type: 'box',
+                      layout: 'horizontal',
+                      contents: [
+                        {
+                          type: 'box',
+                          layout: 'vertical',
+                          contents: [
+                            {
+                              type: 'text',
+                              text: `${num}`,
+                              flex: 0,
+                              align: 'center',
+                              size: 'xxs',
+                              color: '#ffffff',
+                              offsetTop: '1px'
+                            }
+                          ],
+                          backgroundColor: `${color}`,
+                          cornerRadius: '3px',
+                          margin: 'xl',
+                          width: '18px',
+                          height: '18px'
+                        },
+                        {
+                          type: 'box',
+                          layout: 'horizontal',
+                          contents: [
+                            {
+                              type: 'text',
+                              text: `${city[num - 1]}`,
+                              weight: 'bold',
+                              margin: 'sm',
+                              flex: 0,
+                              wrap: true,
+                              maxLines: 2,
+                              size: 'sm'
+                            }
+                          ],
+                          paddingStart: '5px',
+                          flex: 0
+                        }
+                      ]
+                    }
+                  ],
+                  paddingBottom: '5px',
+                  width: '50%',
+                  flex: 1,
+                  action: {
+                    type: 'postback',
+                    label: 'action',
+                    data: `${city[num - 1]}`
+                  }
+                },
+                {
+                  type: 'box',
+                  layout: 'vertical',
+                  contents: [
+                    {
+                      type: 'box',
+                      layout: 'horizontal',
+                      contents: [
+                        {
+                          type: 'box',
+                          layout: 'vertical',
+                          contents: [
+                            {
+                              type: 'text',
+                              text: `${num + 1}`,
+                              flex: 0,
+                              align: 'center',
+                              size: 'xxs',
+                              color: '#ffffff',
+                              offsetTop: '1px'
+                            }
+                          ],
+                          backgroundColor: `${color}`,
+                          cornerRadius: '3px',
+                          margin: 'xl',
+                          width: '18px',
+                          height: '18px'
+                        },
+                        {
+                          type: 'box',
+                          layout: 'horizontal',
+                          contents: [
+                            {
+                              type: 'text',
+                              text: `${city[num]}`,
+                              weight: 'bold',
+                              margin: 'sm',
+                              flex: 0,
+                              wrap: true,
+                              maxLines: 2,
+                              size: 'sm'
+                            }
+                          ],
+                          paddingStart: '5px',
+                          flex: 0
+                        }
+                      ]
+                    }
+                  ],
+                  paddingBottom: '5px',
+                  width: '50%',
+                  flex: 1,
+                  action: {
+                    type: 'postback',
+                    label: 'action',
+                    data: `${city[num]}`
+                  }
+                }
+              ],
+              offsetStart: '-2px'
+            }
+            reply.contents.body.contents.push(district)
+          } else {
+            if (i + 0.5 == city.length / 2) {
+              const district = {
+                type: 'box',
+                layout: 'horizontal',
+                spacing: 'sm',
+                contents: [
+                  {
+                    type: 'box',
+                    layout: 'vertical',
+                    contents: [
+                      {
+                        type: 'box',
+                        layout: 'horizontal',
+                        contents: [
+                          {
+                            type: 'box',
+                            layout: 'vertical',
+                            contents: [
+                              {
+                                type: 'text',
+                                text: `${num}`,
+                                flex: 0,
+                                align: 'center',
+                                size: 'xxs',
+                                color: '#ffffff',
+                                offsetTop: '1px'
+                              }
+                            ],
+                            backgroundColor: `${color}`,
+                            cornerRadius: '3px',
+                            margin: 'xl',
+                            width: '18px',
+                            height: '18px'
+                          },
+                          {
+                            type: 'box',
+                            layout: 'horizontal',
+                            contents: [
+                              {
+                                type: 'text',
+                                text: `${city[num - 1]}`,
+                                weight: 'bold',
+                                margin: 'sm',
+                                flex: 0,
+                                wrap: true,
+                                maxLines: 2,
+                                size: 'sm'
+                              }
+                            ],
+                            paddingStart: '5px',
+                            flex: 0
+                          }
+                        ]
+                      }
+                    ],
+                    paddingBottom: '5px',
+                    width: '50%',
+                    flex: 1,
+                    action: {
+                      type: 'postback',
+                      label: 'action',
+                      data: `${city[num - 1]}`
+                    }
+                  }
+                ],
+                offsetStart: '-2px'
+              }
+              reply.contents.body.contents.push(district)
+            } else {
+              const district = {
+                type: 'box',
+                layout: 'horizontal',
+                spacing: 'sm',
+                contents: [
+                  {
+                    type: 'box',
+                    layout: 'vertical',
+                    contents: [
+                      {
+                        type: 'box',
+                        layout: 'horizontal',
+                        contents: [
+                          {
+                            type: 'box',
+                            layout: 'vertical',
+                            contents: [
+                              {
+                                type: 'text',
+                                text: `${num}`,
+                                flex: 0,
+                                align: 'center',
+                                size: 'xxs',
+                                color: '#ffffff',
+                                offsetTop: '1px'
+                              }
+                            ],
+                            backgroundColor: `${color}`,
+                            cornerRadius: '3px',
+                            margin: 'xl',
+                            width: '18px',
+                            height: '18px'
+                          },
+                          {
+                            type: 'box',
+                            layout: 'horizontal',
+                            contents: [
+                              {
+                                type: 'text',
+                                text: `${city[num - 1]}`,
+                                weight: 'bold',
+                                margin: 'sm',
+                                flex: 0,
+                                wrap: true,
+                                maxLines: 2,
+                                size: 'sm'
+                              }
+                            ],
+                            paddingStart: '5px',
+                            flex: 0
+                          }
+                        ]
+                      }
+                    ],
+                    paddingBottom: '5px',
+                    width: '50%',
+                    flex: 1,
+                    action: {
+                      type: 'postback',
+                      label: 'action',
+                      data: `${city[num - 1]}`
+                    }
+                  },
+                  {
+                    type: 'box',
+                    layout: 'vertical',
+                    contents: [
+                      {
+                        type: 'box',
+                        layout: 'horizontal',
+                        contents: [
+                          {
+                            type: 'box',
+                            layout: 'vertical',
+                            contents: [
+                              {
+                                type: 'text',
+                                text: `${num + 1}`,
+                                flex: 0,
+                                align: 'center',
+                                size: 'xxs',
+                                color: '#ffffff',
+                                offsetTop: '1px'
+                              }
+                            ],
+                            backgroundColor: `${color}`,
+                            cornerRadius: '3px',
+                            margin: 'xl',
+                            width: '18px',
+                            height: '18px'
+                          },
+                          {
+                            type: 'box',
+                            layout: 'horizontal',
+                            contents: [
+                              {
+                                type: 'text',
+                                text: `${city[num]}`,
+                                weight: 'bold',
+                                margin: 'sm',
+                                flex: 0,
+                                wrap: true,
+                                maxLines: 2,
+                                size: 'sm'
+                              }
+                            ],
+                            paddingStart: '5px',
+                            flex: 0
+                          }
+                        ]
+                      }
+                    ],
+                    paddingBottom: '5px',
+                    width: '50%',
+                    flex: 1,
+                    action: {
+                      type: 'postback',
+                      label: 'action',
+                      data: `${city[num]}`
+                    }
+                  }
+                ],
+                offsetStart: '-2px'
+              }
+              reply.contents.body.contents.push(district)
+            }
+          }
+          num += 2
+        }
+
+        event.reply(reply)
+      } else if (
+        event.message.text === '臺北市' ||
+        event.message.text === '新北市' ||
+        event.message.text === '基隆市' ||
+        event.message.text === '桃園市' ||
+        event.message.text === '新竹市' ||
+        event.message.text === '新竹縣' ||
+        event.message.text === '苗栗縣' ||
+        event.message.text === '臺中市' ||
+        event.message.text === '彰化市' ||
+        event.message.text === '南投縣' ||
+        event.message.text === '雲林縣' ||
+        event.message.text === '嘉義市' ||
+        event.message.text === '嘉義縣' ||
+        event.message.text === '臺南市' ||
+        event.message.text === '高雄市' ||
+        event.message.text === '屏東縣' ||
+        event.message.text === '宜蘭縣' ||
+        event.message.text === '花蓮縣' ||
+        event.message.text === '臺東縣'
+      ) {
+        const city = event.message.text
+        const reply2 = {
+          type: 'flex',
+          altText: '景點搜尋功能',
+          contents: {
+            type: 'carousel',
+            contents: [
+              {
+                type: 'bubble',
+                body: {
+                  type: 'box',
+                  layout: 'vertical',
+                  contents: [
+                    {
+                      type: 'text',
+                      text: '私房路線',
+                      color: '#745F4C',
+                      align: 'start',
+                      size: 'md',
+                      gravity: 'center',
+                      weight: 'bold'
+                    },
+                    {
+                      type: 'text',
+                      text: '熱門路線讓你玩',
+                      color: '#745F4C',
+                      align: 'start',
+                      size: 'xs',
+                      gravity: 'center',
+                      margin: 'lg'
+                    }
+                  ],
+                  backgroundColor: '#FFCF48',
+                  paddingTop: '19px',
+                  paddingAll: '12px',
+                  paddingBottom: '16px',
+                  action: {
+                    type: 'postback',
+                    label: 'action',
+                    data: `${city}私房路線`
+                  }
+                },
+                size: 'nano',
+                styles: {
+                  footer: {
+                    separator: false
+                  }
+                }
+              },
+              {
+                type: 'bubble',
+                size: 'nano',
+                body: {
+                  type: 'box',
+                  layout: 'vertical',
+                  contents: [
+                    {
+                      type: 'text',
+                      text: '隨機推薦',
+                      color: '#745F4C',
+                      align: 'start',
+                      size: 'md',
+                      gravity: 'center',
+                      weight: 'bold'
+                    },
+                    {
+                      type: 'text',
+                      text: '選擇障礙請選我',
+                      color: '#745F4C',
+                      align: 'start',
+                      size: 'xs',
+                      gravity: 'center',
+                      margin: 'lg'
+                    }
+                  ],
+                  backgroundColor: '#FBE68B',
+                  paddingTop: '19px',
+                  paddingAll: '12px',
+                  paddingBottom: '16px',
+                  action: {
+                    type: 'postback',
+                    label: 'action',
+                    data: `${city}隨機推薦`
+                  }
+                },
+                styles: {
+                  footer: {
+                    separator: false
+                  }
+                }
+              },
+              {
+                type: 'bubble',
+                size: 'nano',
+                body: {
+                  type: 'box',
+                  layout: 'vertical',
+                  contents: [
+                    {
+                      type: 'text',
+                      text: '全部景點',
+                      color: '#ffffff',
+                      align: 'start',
+                      size: 'md',
+                      gravity: 'center',
+                      weight: 'bold'
+                    },
+                    {
+                      type: 'text',
+                      text: '真的很多慢慢看',
+                      color: '#ffffff',
+                      align: 'start',
+                      size: 'xs',
+                      gravity: 'center',
+                      margin: 'lg'
+                    }
+                  ],
+                  backgroundColor: '#CFAE8F',
+                  paddingTop: '19px',
+                  paddingAll: '12px',
+                  paddingBottom: '16px',
+                  action: {
+                    type: 'postback',
+                    label: 'action',
+                    data: `${city}全部景點`
+                  }
+                },
+                styles: {
+                  footer: {
+                    separator: false
+                  }
+                }
+              },
+              {
+                type: 'bubble',
+                size: 'nano',
+                body: {
+                  type: 'box',
+                  layout: 'vertical',
+                  contents: [
+                    {
+                      type: 'text',
+                      text: '離我最近',
+                      color: '#ffffff',
+                      align: 'start',
+                      size: 'md',
+                      gravity: 'center',
+                      weight: 'bold'
+                    },
+                    {
+                      type: 'text',
+                      text: '附近景點交給我',
+                      color: '#ffffff',
+                      align: 'start',
+                      size: 'xs',
+                      gravity: 'center',
+                      margin: 'lg'
+                    }
+                  ],
+                  backgroundColor: '#CC9966',
+                  paddingTop: '19px',
+                  paddingAll: '12px',
+                  paddingBottom: '16px',
+                  action: {
+                    type: 'postback',
+                    label: 'action',
+                    data: `${city}離我最近`
+                  }
+                },
+                styles: {
+                  footer: {
+                    separator: false
+                  }
+                }
+              }
+            ]
+          }
+        }
+        event.reply(reply2)
       } else {
         event.reply({
           type: 'text',
@@ -1831,8 +2411,7 @@ bot.on('postback', async event => {
           const result = data.filter(d => {
             return d.Add.includes(rr) && d.Name !== '' && d.Add !== ''
           })
-          const datalength = data.length
-
+          const datalength = result.length
           const reply = {
             type: 'flex',
             altText: `${rr}全部景點`,
