@@ -719,7 +719,7 @@ bot.on('message', async event => {
             ]
           }
         })
-      } else if (event.message.text === '講笑話' || event.message.text === '來講笑話鴨' || event.message.text === '笑話') {
+      } else if (event.message.text === '講笑話' || event.message.text === '來講笑話鴨' || event.message.text === '笑話' || event.message.text === '娛樂我') {
         let rand = Math.round(Math.random() * (joke.length - 1))
 
         event.reply(joke[rand])
