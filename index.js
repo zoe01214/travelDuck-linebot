@@ -2502,7 +2502,7 @@ bot.on('postback', async event => {
                         contents: [
                           {
                             type: 'image',
-                            url: 'https://raw.githubusercontent.com/zoe01214/linebot/main/google-maps-icon.png',
+                            url: 'https://raw.githubusercontent.com/zoe01214/travelduck-linebot/main/google-maps-icon.png',
                             size: '25px'
                           }
                         ],
