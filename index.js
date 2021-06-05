@@ -234,7 +234,6 @@ schedule.scheduleJob('* * 0 * *', getData)
 getData()
 
 dotenv.config()
-console.log(joke)
 const bot = linebot({
   channelId: process.env.CHANNEL_ID,
   channelSecret: process.env.CHANNEL_SECRET,
@@ -333,7 +332,6 @@ bot.on('message', async event => {
         for (let i of dataidx) {
           const distan = distance(event.message.latitude, event.message.longitude, n.Py, n.Px, 'K')
           if (number === i) {
-            console.log('number' + number)
             reply.contents.contents.push({
               type: 'bubble',
               size: 'micro',
@@ -1405,7 +1403,6 @@ bot.on('postback', async event => {
               description = d.Toldescribe
             }
             if (number === newidx[0]) {
-              console.log('a')
               reply.contents.body.contents.push({
                 type: 'box',
                 layout: 'vertical',
@@ -2317,7 +2314,6 @@ bot.on('postback', async event => {
           for (let i = 0; i < 5; i++) {
             random.push(parseInt(Math.round(Math.random() * (datalength - 1))))
           }
-          console.log(random)
           for (let d of result) {
             for (let i of random) {
               let add = d.Add.replace(/\s*/g, '')
