@@ -1,5 +1,6 @@
 ## 來旅遊鴨 ID
 
+![image](https://raw.githubusercontent.com/zoe01214/travelduck-linebot/main/images/qrcode.png)
 ID: 1656067682
 
 ## 公開資料來源
