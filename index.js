@@ -4,6 +4,7 @@ import axios from 'axios'
 import schedule from 'node-schedule'
 
 let data = []
+let weather = []
 const joke = [
   '有時候也很佩服自己，明明薪水這麼少，卻能把自己養這麼胖。',
   '母雞向母牛抱怨：「真受不了人類，他們每天用盡方法避孕，卻讓我們下蛋！」\n\n母牛回答：「那算什麼！他們每天喝我的奶，卻沒人叫我一聲媽咪。」',
@@ -227,6 +228,9 @@ const getData = async () => {
       data = response.data.XML_Head.Infos.Info
     })
     .catch()
+  axios.get('https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-480FC5AD-9198-49D2-904D-9861CAC6DC74').then(response => {
+    weather = response.data.records.location
+  })
 }
 // 每日 0 點定時更新資料
 schedule.scheduleJob('* * 0 * *', getData)
@@ -471,7 +475,8 @@ bot.on('message', async event => {
         event.message.text === '我想找景點' ||
         event.message.text === '我要找景點' ||
         event.message.text === '幫我找景點' ||
-        event.message.text === '找景點'
+        event.message.text === '找景點' ||
+        event.message.text === '來找景點鴨'
       ) {
         let reply = {
           type: 'flex',
