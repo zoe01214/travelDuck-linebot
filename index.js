@@ -303,6 +303,7 @@ const region = [
 bot.on('message', async event => {
   if (event.message.type === 'location') {
     try {
+      console.log(event.message)
       const result = data.filter(d => {
         return d.Name !== '' && d.Add !== ''
       })
