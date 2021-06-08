@@ -325,24 +325,19 @@ bot.on('message', async event => {
         }
       }
       console.log('a')
-      console.log(newdata.length)
-      for (let i = 0; i < 5; i++) {
-        if (newdata.length !== 0) {
-          console.log('d')
-          let rand = Math.round(Math.random() * (newdata.length - 1))
-          if (dataidx.includes(rand)) {
-            i--
-          } else {
-            dataidx.push(rand)
-          }
-        }
-      }
-      console.log('b')
+
       if (newdata.length === 0) {
-        console.log('c')
         event.reply('兄弟 你附近是荒野嗎\n我找地圖找了好久沒有景點呀！')
       } else {
-        console.log('e')
+        if (newdata.length > 5) {
+            console.log('newdata: ' + newdata.length)
+            dataidx.push() = Math.round(Math.random() * (newdata.length - 1))
+ 
+        } else {
+          for(let i=0 ; i<newdata.length ;i++){
+            dataidx.push(i) 
+          }
+        }
         for (const n of newdata) {
           for (let i of dataidx) {
             const distan = distance(event.message.latitude, event.message.longitude, n.Py, n.Px, 'K')
@@ -465,11 +460,10 @@ bot.on('message', async event => {
           }
           number++
         }
-        console.log('f')
-        if (newdata.length === 5) {
-          event.reply(['哇 你很幸運！\n方圓5公里內剛好就這5個點\n快跟著我一起沖鴨～～～', reply])
+        if (newdata.length <= 5) {
+          event.reply(['哇 你很幸運！\n方圓5公里內就是這幾個點了\n快跟著我一起沖鴨～～～', reply])
         } else {
-          event.reply(['5公里內的景點太多了\n就推薦你幾個自己看吧\n\n不喜歡這些的話就再跟我說一次位置\n破例再幫你找一次！', reply])
+          event.reply(['5公里內景點太多了\n就推薦你幾個自己看吧', reply])
         }
       }
     } catch (error) {
