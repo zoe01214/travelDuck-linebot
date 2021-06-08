@@ -4,7 +4,6 @@ import axios from 'axios'
 import schedule from 'node-schedule'
 
 let data = []
-let weather = []
 const joke = [
   '有時候也很佩服自己，明明薪水這麼少，卻能把自己養這麼胖。',
   '母雞向母牛抱怨：「真受不了人類，他們每天用盡方法避孕，卻讓我們下蛋！」\n\n母牛回答：「那算什麼！他們每天喝我的奶，卻沒人叫我一聲媽咪。」',
@@ -227,10 +226,10 @@ const getData = async () => {
     .then(response => {
       data = response.data.XML_Head.Infos.Info
     })
-    .catch()
-  axios.get('https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-480FC5AD-9198-49D2-904D-9861CAC6DC74').then(response => {
-    weather = response.data.records.location
-  })
+    .catch(error => {
+      console.log(error)
+      console.log('getData錯誤')
+    })
 }
 // 每日 0 點定時更新資料
 schedule.scheduleJob('* * 0 * *', getData)
@@ -302,184 +301,184 @@ const region = [
 ]
 
 bot.on('message', async event => {
-  try {
-    if (event.message.type === 'location') {
-      try {
-        const result = data.filter(d => {
-          return d.Name !== '' && d.Add !== ''
-        })
-        const reply = {
-          type: 'flex',
-          altText: '附近景點推薦',
-          contents: {
-            type: 'carousel',
-            contents: []
-          }
+  if (event.message.type === 'location') {
+    try {
+      const result = data.filter(d => {
+        return d.Name !== '' && d.Add !== ''
+      })
+      const reply = {
+        type: 'flex',
+        altText: '附近景點推薦',
+        contents: {
+          type: 'carousel',
+          contents: []
         }
-        const newdata = []
-        const dataidx = []
-        let number = 0
-        for (const d of result) {
-          const distan = distance(event.message.latitude, event.message.longitude, d.Py, d.Px, 'K')
-          if (distan <= 5) {
-            newdata.push(d)
-          }
-        }
-        for (let i = 0; i < 5; i++) {
-          if (newdata.length !== 0) {
-            let rand = Math.round(Math.random() * (newdata.length - 1))
-            if (dataidx.includes(rand)) {
-              i--
-            } else {
-              dataidx.push(rand)
-            }
-          }
-        }
-        if (newdata.length !== 0) {
-          for (const n of newdata) {
-            for (let i of dataidx) {
-              const distan = distance(event.message.latitude, event.message.longitude, n.Py, n.Px, 'K')
-              if (number === i) {
-                reply.contents.contents.push({
-                  type: 'bubble',
-                  size: 'micro',
-                  body: {
-                    type: 'box',
-                    layout: 'vertical',
-                    contents: [
-                      {
-                        type: 'box',
-                        layout: 'vertical',
-                        contents: [
-                          {
-                            type: 'text',
-                            text: `${n.Name}`,
-                            size: 'md',
-                            adjustMode: 'shrink-to-fit',
-                            weight: 'bold',
-                            wrap: true
-                          }
-                        ],
-                        paddingBottom: '2px'
-                      },
-                      {
-                        type: 'box',
-                        layout: 'vertical',
-                        contents: [
-                          {
-                            type: 'box',
-                            layout: 'horizontal',
-                            contents: [
-                              {
-                                type: 'box',
-                                layout: 'vertical',
-                                contents: [
-                                  {
-                                    type: 'text',
-                                    text: '距離目前位置',
-                                    size: 'xxs'
-                                  }
-                                ],
-                                width: '95px'
-                              },
-                              {
-                                type: 'box',
-                                layout: 'vertical',
-                                contents: [
-                                  {
-                                    type: 'text',
-                                    text: `${distan.toFixed(2)}K`,
-                                    size: 'xs',
-                                    wrap: true
-                                  }
-                                ],
-                                alignItems: 'flex-end',
-                                width: '45px'
-                              }
-                            ],
-                            alignItems: 'center',
-                            justifyContent: 'space-between'
-                          }
-                        ]
-                      },
-                      {
-                        type: 'separator',
-                        margin: '5px'
-                      },
-                      {
-                        type: 'box',
-                        layout: 'vertical',
-                        contents: [
-                          {
-                            type: 'text',
-                            text: `${n.Add}`,
-                            size: 'xs',
-                            wrap: true
-                          }
-                        ],
-                        paddingTop: '5px'
-                      }
-                    ]
-                  },
-                  footer: {
-                    type: 'box',
-                    layout: 'vertical',
-                    contents: [
-                      {
-                        type: 'box',
-                        layout: 'vertical',
-                        contents: [
-                          {
-                            type: 'text',
-                            text: '地點介紹',
-                            align: 'center',
-                            size: 'xs',
-                            color: '#ffffff',
-                            weight: 'bold'
-                          }
-                        ],
-                        backgroundColor: '#CC9966',
-                        cornerRadius: '5px',
-                        alignItems: 'center',
-                        height: '25px',
-                        justifyContent: 'center',
-                        width: '80px',
-                        action: {
-                          type: 'postback',
-                          label: `${n.Name}地點介紹`,
-                          data: `${n.Name}地點介紹`
-                        }
-                      }
-                    ],
-                    alignItems: 'center'
-                  }
-                })
-              }
-            }
-            number++
-          }
-        }
-        if (newdata.length === 0) {
-          event.reply('兄弟 你附近是荒野嗎\n我找地圖找了好久沒有景點呀！')
-        } else if (newdata.length === 5) {
-          event.reply(['哇 你很幸運！\n方圓5公里內剛好就這5個點\n快跟著我一起沖鴨～～～', reply])
-        } else {
-          event.reply(['5公里內的景點太多了\n就推薦你幾個自己看吧\n\n不喜歡這些的話就再跟我說一次位置\n破例再幫你找一次！', reply])
-        }
-      } catch (error) {
-        event.reply('不要傳奇怪的地方鴨！我會錯亂！')
       }
+      const newdata = []
+      const dataidx = []
+      let number = 0
+      for (const d of result) {
+        const distan = distance(event.message.latitude, event.message.longitude, d.Py, d.Px, 'K')
+        if (distan <= 5) {
+          newdata.push(d)
+        }
+      }
+      for (let i = 0; i < 5; i++) {
+        if (newdata.length !== 0) {
+          let rand = Math.round(Math.random() * (newdata.length - 1))
+          if (dataidx.includes(rand)) {
+            i--
+          } else {
+            dataidx.push(rand)
+          }
+        }
+      }
+      if (newdata.length !== 0) {
+        for (const n of newdata) {
+          for (let i of dataidx) {
+            const distan = distance(event.message.latitude, event.message.longitude, n.Py, n.Px, 'K')
+            if (number === i) {
+              reply.contents.contents.push({
+                type: 'bubble',
+                size: 'micro',
+                body: {
+                  type: 'box',
+                  layout: 'vertical',
+                  contents: [
+                    {
+                      type: 'box',
+                      layout: 'vertical',
+                      contents: [
+                        {
+                          type: 'text',
+                          text: `${n.Name}`,
+                          size: 'md',
+                          adjustMode: 'shrink-to-fit',
+                          weight: 'bold',
+                          wrap: true
+                        }
+                      ],
+                      paddingBottom: '2px'
+                    },
+                    {
+                      type: 'box',
+                      layout: 'vertical',
+                      contents: [
+                        {
+                          type: 'box',
+                          layout: 'horizontal',
+                          contents: [
+                            {
+                              type: 'box',
+                              layout: 'vertical',
+                              contents: [
+                                {
+                                  type: 'text',
+                                  text: '距離目前位置',
+                                  size: 'xxs'
+                                }
+                              ],
+                              width: '95px'
+                            },
+                            {
+                              type: 'box',
+                              layout: 'vertical',
+                              contents: [
+                                {
+                                  type: 'text',
+                                  text: `${distan.toFixed(2)}K`,
+                                  size: 'xs',
+                                  wrap: true
+                                }
+                              ],
+                              alignItems: 'flex-end',
+                              width: '45px'
+                            }
+                          ],
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }
+                      ]
+                    },
+                    {
+                      type: 'separator',
+                      margin: '5px'
+                    },
+                    {
+                      type: 'box',
+                      layout: 'vertical',
+                      contents: [
+                        {
+                          type: 'text',
+                          text: `${n.Add}`,
+                          size: 'xs',
+                          wrap: true
+                        }
+                      ],
+                      paddingTop: '5px'
+                    }
+                  ]
+                },
+                footer: {
+                  type: 'box',
+                  layout: 'vertical',
+                  contents: [
+                    {
+                      type: 'box',
+                      layout: 'vertical',
+                      contents: [
+                        {
+                          type: 'text',
+                          text: '地點介紹',
+                          align: 'center',
+                          size: 'xs',
+                          color: '#ffffff',
+                          weight: 'bold'
+                        }
+                      ],
+                      backgroundColor: '#CC9966',
+                      cornerRadius: '5px',
+                      alignItems: 'center',
+                      height: '25px',
+                      justifyContent: 'center',
+                      width: '80px',
+                      action: {
+                        type: 'postback',
+                        label: `${n.Name}地點介紹`,
+                        data: `${n.Name}地點介紹`
+                      }
+                    }
+                  ],
+                  alignItems: 'center'
+                }
+              })
+            }
+          }
+          number++
+        }
+      }
+      if (newdata.length === 0) {
+        event.reply('兄弟 你附近是荒野嗎\n我找地圖找了好久沒有景點呀！')
+      } else if (newdata.length === 5) {
+        event.reply(['哇 你很幸運！\n方圓5公里內剛好就這5個點\n快跟著我一起沖鴨～～～', reply])
+      } else {
+        event.reply(['5公里內的景點太多了\n就推薦你幾個自己看吧\n\n不喜歡這些的話就再跟我說一次位置\n破例再幫你找一次！', reply])
+      }
+    } catch (error) {
+      event.reply('不要傳奇怪的地方鴨！我會錯亂！')
     }
-    if (event.message.type === 'text') {
-      if (
-        event.message.text === '那幫我找找有什麼景點' ||
-        event.message.text === '景點' ||
-        event.message.text === '我想找景點' ||
-        event.message.text === '我要找景點' ||
-        event.message.text === '幫我找景點' ||
-        event.message.text === '找景點' ||
-        event.message.text === '來找景點鴨'
-      ) {
+  }
+  if (event.message.type === 'text') {
+    if (
+      event.message.text === '那幫我找找有什麼景點' ||
+      event.message.text === '景點' ||
+      event.message.text === '我想找景點' ||
+      event.message.text === '我要找景點' ||
+      event.message.text === '幫我找景點' ||
+      event.message.text === '找景點' ||
+      event.message.text === '來找景點鴨'
+    ) {
+      try {
         let reply = {
           type: 'flex',
           altText: 'flex',
@@ -714,7 +713,11 @@ bot.on('message', async event => {
           }
         }
         event.reply(reply)
-      } else if (event.message.text === '問附近' || event.message.text === '來問附近鴨' || event.message.text === '附近') {
+      } catch (error) {
+        event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
+      }
+    } else if (event.message.text === '問附近' || event.message.text === '來問附近鴨' || event.message.text === '附近') {
+      try {
         event.reply({
           type: 'text',
           text: '兄弟 先告訴我你在哪吧！',
@@ -730,16 +733,24 @@ bot.on('message', async event => {
             ]
           }
         })
-      } else if (event.message.text === '講笑話' || event.message.text === '來講笑話鴨' || event.message.text === '笑話' || event.message.text === '娛樂我') {
+      } catch (error) {
+        event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
+      }
+    } else if (event.message.text === '講笑話' || event.message.text === '來講笑話鴨' || event.message.text === '笑話' || event.message.text === '娛樂我') {
+      try {
         let rand = Math.round(Math.random() * (joke.length - 1))
 
         event.reply(joke[rand])
-      } else if (
-        event.message.text === '北部地區' ||
-        event.message.text === '中部地區' ||
-        event.message.text === '南部地區' ||
-        event.message.text === '東部地區'
-      ) {
+      } catch (error) {
+        event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
+      }
+    } else if (
+      event.message.text === '北部地區' ||
+      event.message.text === '中部地區' ||
+      event.message.text === '南部地區' ||
+      event.message.text === '東部地區'
+    ) {
+      try {
         let result = region.filter(data => {
           return data.area === event.message.text
         })
@@ -1108,27 +1119,31 @@ bot.on('message', async event => {
         }
 
         event.reply(reply)
-      } else if (
-        event.message.text === '臺北市' ||
-        event.message.text === '新北市' ||
-        event.message.text === '基隆市' ||
-        event.message.text === '桃園市' ||
-        event.message.text === '新竹市' ||
-        event.message.text === '新竹縣' ||
-        event.message.text === '苗栗縣' ||
-        event.message.text === '臺中市' ||
-        event.message.text === '彰化市' ||
-        event.message.text === '南投縣' ||
-        event.message.text === '雲林縣' ||
-        event.message.text === '嘉義市' ||
-        event.message.text === '嘉義縣' ||
-        event.message.text === '臺南市' ||
-        event.message.text === '高雄市' ||
-        event.message.text === '屏東縣' ||
-        event.message.text === '宜蘭縣' ||
-        event.message.text === '花蓮縣' ||
-        event.message.text === '臺東縣'
-      ) {
+      } catch (error) {
+        event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
+      }
+    } else if (
+      event.message.text === '臺北市' ||
+      event.message.text === '新北市' ||
+      event.message.text === '基隆市' ||
+      event.message.text === '桃園市' ||
+      event.message.text === '新竹市' ||
+      event.message.text === '新竹縣' ||
+      event.message.text === '苗栗縣' ||
+      event.message.text === '臺中市' ||
+      event.message.text === '彰化市' ||
+      event.message.text === '南投縣' ||
+      event.message.text === '雲林縣' ||
+      event.message.text === '嘉義市' ||
+      event.message.text === '嘉義縣' ||
+      event.message.text === '臺南市' ||
+      event.message.text === '高雄市' ||
+      event.message.text === '屏東縣' ||
+      event.message.text === '宜蘭縣' ||
+      event.message.text === '花蓮縣' ||
+      event.message.text === '臺東縣'
+    ) {
+      try {
         const city = event.message.text
         const reply2 = {
           type: 'flex',
@@ -1308,7 +1323,11 @@ bot.on('message', async event => {
           }
         }
         event.reply(reply2)
-      } else {
+      } catch (error) {
+        event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
+      }
+    } else {
+      try {
         event.reply({
           type: 'text',
           text: '我可是踏遍全台的旅遊鴨\n想找景點找我就對了！\n\n說明書：\n1. 輸入景點／找景點／幫我找景點\n2. 傳送目前位置訊息查附近景點\n（此功能僅支援手機版）\n3. 輸入講笑話／笑話／娛樂我',
@@ -1332,17 +1351,17 @@ bot.on('message', async event => {
             ]
           }
         })
+      } catch (error) {
+        event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
       }
     }
-  } catch (error) {
-    event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
   }
 })
 
 bot.on('postback', async event => {
-  try {
-    for (const r of region) {
-      if (event.postback.data.includes(r.area)) {
+  for (const r of region) {
+    if (event.postback.data.includes(r.area)) {
+      try {
         let num = 1
         const reply = {
           type: 'flex',
@@ -1704,9 +1723,13 @@ bot.on('postback', async event => {
         }
 
         event.reply(reply)
+      } catch (error) {
+        event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
       }
-      for (const rr of r.district) {
-        if (event.postback.data === rr) {
+    }
+    for (const rr of r.district) {
+      if (event.postback.data === rr) {
+        try {
           const reply2 = {
             type: 'flex',
             altText: '景點搜尋功能',
@@ -1885,8 +1908,12 @@ bot.on('postback', async event => {
             }
           }
           event.reply(reply2)
+        } catch (error) {
+          event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
         }
-        if (event.postback.data.includes(rr) && event.postback.data.includes('私房路線')) {
+      }
+      if (event.postback.data.includes(rr) && event.postback.data.includes('私房路線')) {
+        try {
           const result = data.filter(d => {
             return d.Add.includes(rr) && d.Name !== '' && d.Add !== ''
           })
@@ -2413,8 +2440,12 @@ bot.on('postback', async event => {
             number++
           }
           event.reply(reply)
+        } catch (error) {
+          event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
         }
-        if (event.postback.data.includes(rr) && event.postback.data.includes('全部景點')) {
+      }
+      if (event.postback.data.includes(rr) && event.postback.data.includes('全部景點')) {
+        try {
           const result = data.filter(d => {
             return d.Add.includes(rr) && d.Name !== '' && d.Add !== ''
           })
@@ -2615,8 +2646,12 @@ bot.on('postback', async event => {
             })
           }
           event.reply(reply)
+        } catch (error) {
+          event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
         }
-        if (event.postback.data.includes(rr) && event.postback.data.includes('離我最近')) {
+      }
+      if (event.postback.data.includes(rr) && event.postback.data.includes('離我最近')) {
+        try {
           event.reply({
             type: 'text',
             text: '兄弟 先告訴我你在哪吧!\n（此功能僅支援手機版）',
@@ -2632,8 +2667,12 @@ bot.on('postback', async event => {
               ]
             }
           })
+        } catch (error) {
+          event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
         }
-        if (event.postback.data.includes(rr) && event.postback.data.includes('下一頁')) {
+      }
+      if (event.postback.data.includes(rr) && event.postback.data.includes('下一頁')) {
+        try {
           const result = data.filter(d => {
             return d.Add.includes(rr) && d.Name !== '' && d.Add !== ''
           })
@@ -2837,8 +2876,12 @@ bot.on('postback', async event => {
             })
           }
           event.reply(reply)
+        } catch (error) {
+          event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
         }
-        if (event.postback.data.includes(rr) && event.postback.data.includes('隨機推薦')) {
+      }
+      if (event.postback.data.includes(rr) && event.postback.data.includes('隨機推薦')) {
+        try {
           const result = data.filter(d => {
             return d.Add.includes(rr) && d.Name !== '' && d.Add !== ''
           })
@@ -3046,11 +3089,15 @@ bot.on('postback', async event => {
             })
           }
           event.reply(reply)
+        } catch (error) {
+          event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
         }
       }
     }
+  }
 
-    if (event.postback.data.includes('地點介紹')) {
+  if (event.postback.data.includes('地點介紹')) {
+    try {
       const result = data.filter(d => {
         return d.Name === event.postback.data.slice(0, -4)
       })
@@ -3164,11 +3211,12 @@ bot.on('postback', async event => {
         }
       }
       event.reply(reply)
+    } catch (error) {
+      event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
     }
-  } catch (error) {
-    event.reply('我的腦波發生錯誤了，幫我叫醫生好嗎？')
   }
 })
+
 bot.on('join', function (event) {
   event.reply('大家好~~我是踏遍全台的旅遊鴨\n以後想去哪裡玩找我就對了!!\n\n輸入景點或傳位置就幫你找囉')
 })
