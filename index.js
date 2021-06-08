@@ -324,6 +324,7 @@ bot.on('message', async event => {
           newdata.push(d)
         }
       }
+      console.log('a')
       for (let i = 0; i < 5; i++) {
         if (newdata.length !== 0) {
           let rand = Math.round(Math.random() * (newdata.length - 1))
@@ -334,10 +335,12 @@ bot.on('message', async event => {
           }
         }
       }
-
+      console.log('b')
       if (newdata.length === 0) {
+        console.log('c')
         event.reply('兄弟 你附近是荒野嗎\n我找地圖找了好久沒有景點呀！')
       } else {
+        console.log('e')
         for (const n of newdata) {
           for (let i of dataidx) {
             const distan = distance(event.message.latitude, event.message.longitude, n.Py, n.Px, 'K')
@@ -460,6 +463,7 @@ bot.on('message', async event => {
           }
           number++
         }
+        console.log('f')
         if (newdata.length === 5) {
           event.reply(['哇 你很幸運！\n方圓5公里內剛好就這5個點\n快跟著我一起沖鴨～～～', reply])
         } else {
