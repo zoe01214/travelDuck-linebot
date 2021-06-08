@@ -333,7 +333,10 @@ bot.on('message', async event => {
           }
         }
       }
-      if (newdata.length !== 0) {
+
+      if (newdata.length === 0) {
+        event.reply('兄弟 你附近是荒野嗎\n我找地圖找了好久沒有景點呀！')
+      } else {
         for (const n of newdata) {
           for (let i of dataidx) {
             const distan = distance(event.message.latitude, event.message.longitude, n.Py, n.Px, 'K')
@@ -456,13 +459,11 @@ bot.on('message', async event => {
           }
           number++
         }
-      }
-      if (newdata.length === 0) {
-        event.reply('兄弟 你附近是荒野嗎\n我找地圖找了好久沒有景點呀！')
-      } else if (newdata.length === 5) {
-        event.reply(['哇 你很幸運！\n方圓5公里內剛好就這5個點\n快跟著我一起沖鴨～～～', reply])
-      } else {
-        event.reply(['5公里內的景點太多了\n就推薦你幾個自己看吧\n\n不喜歡這些的話就再跟我說一次位置\n破例再幫你找一次！', reply])
+        if (newdata.length === 5) {
+          event.reply(['哇 你很幸運！\n方圓5公里內剛好就這5個點\n快跟著我一起沖鴨～～～', reply])
+        } else {
+          event.reply(['5公里內的景點太多了\n就推薦你幾個自己看吧\n\n不喜歡這些的話就再跟我說一次位置\n破例再幫你找一次！', reply])
+        }
       }
     } catch (error) {
       event.reply('不要傳奇怪的地方鴨！我會錯亂！')
