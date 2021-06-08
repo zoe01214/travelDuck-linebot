@@ -324,8 +324,7 @@ bot.on('message', async event => {
           newdata.push(d)
         }
       }
-      console.log('a')
-
+      console.log(newdata)
       if (newdata.length === 0) {
         event.reply('兄弟 你附近是荒野嗎\n我找地圖找了好久沒有景點呀！')
       } else {
