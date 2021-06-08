@@ -327,14 +327,14 @@ bot.on('message', async event => {
         event.reply('兄弟 你附近是荒野嗎\n我找地圖找了好久沒有景點呀！')
       } else {
         if (newdata.length > 5) {
-            dataidx.push() = Math.round(Math.random() * (newdata.length - 1))
- 
+          for (let i = 0; i < 5; i++) {
+            dataidx.push(Math.round(Math.random() * (newdata.length - 1)))
+          }
         } else {
-          for(let i=0 ; i<newdata.length ;i++){
-            dataidx.push(i) 
+          for (let i = 0; i < newdata.length; i++) {
+            dataidx.push(i)
           }
         }
-        console.log(newdata)
         for (const n of newdata) {
           for (let i of dataidx) {
             const distan = distance(event.message.latitude, event.message.longitude, n.Py, n.Px, 'K')
