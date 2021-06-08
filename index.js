@@ -325,8 +325,10 @@ bot.on('message', async event => {
         }
       }
       console.log('a')
+      console.log(newdata.length)
       for (let i = 0; i < 5; i++) {
         if (newdata.length !== 0) {
+          console.log('d')
           let rand = Math.round(Math.random() * (newdata.length - 1))
           if (dataidx.includes(rand)) {
             i--
