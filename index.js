@@ -303,7 +303,6 @@ const region = [
 bot.on('message', async event => {
   if (event.message.type === 'location') {
     try {
-      console.log(event.message)
       const result = data.filter(d => {
         return d.Name !== '' && d.Add !== ''
       })
@@ -324,12 +323,10 @@ bot.on('message', async event => {
           newdata.push(d)
         }
       }
-      console.log(newdata)
       if (newdata.length === 0) {
         event.reply('兄弟 你附近是荒野嗎\n我找地圖找了好久沒有景點呀！')
       } else {
         if (newdata.length > 5) {
-            console.log('newdata: ' + newdata.length)
             dataidx.push() = Math.round(Math.random() * (newdata.length - 1))
  
         } else {
@@ -337,6 +334,7 @@ bot.on('message', async event => {
             dataidx.push(i) 
           }
         }
+        console.log(newdata)
         for (const n of newdata) {
           for (let i of dataidx) {
             const distan = distance(event.message.latitude, event.message.longitude, n.Py, n.Px, 'K')
